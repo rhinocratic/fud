@@ -1,10 +1,10 @@
-# rhinocratic/inventory
+# rhinocratic/fud
 
 FIXME: my new application.
 
 ## Installation
 
-Download from https://github.com/rhinocratic/inventory
+Download from https://github.com/rhinocratic/fud
 
 ## Usage
 
@@ -20,7 +20,7 @@ Run the project, overriding the name to be greeted:
     $ clojure -X:run-x :name '"Someone"'
     Hello, Someone!
 
-Run the project directly, via `:main-opts` (`-m rhinocratic.inventory`):
+Run the project directly, via `:main-opts` (`-m rhinocratic.fud`):
 
     $ clojure -M:run-m
     Hello, World!
@@ -48,9 +48,9 @@ from `build.clj`.
 
 Run that uberjar:
 
-    $ java -jar target/inventory-0.1.0-SNAPSHOT.jar
+    $ java -jar target/fud-0.1.0-SNAPSHOT.jar
 
-If you remove `version` from `build.clj`, the uberjar will become `target/inventory-standalone.jar`.
+If you remove `version` from `build.clj`, the uberjar will become `target/fud-standalone.jar`.
 
 ## Options
 

@@ -1,3 +1,3 @@
-# Introduction to rhinocratic/inventory
+# Introduction to rhinocratic/fud
 
 TODO: write [great documentation](http://jacobian.org/writing/what-to-write/)

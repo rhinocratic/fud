@@ -1,0 +1,52 @@
+{:app-name "fud"
+
+ ;; For development only - a local file containing a map of secrets
+ :secrets #include #join [#env HOME "/.my.secrets.edn"]
+
+ :rhinocratic.fud/app-server
+ {:port       #profile {:dev  #long #or [#env FUD_APP_SERVER_PORT 8080]
+                        :prod #long #or [#env FUD_APP_SERVER_PORT 8080]}
+  :database   #ig/ref :rhinocratic.fud/db
+  :cookie-key #or [#env FUD_COOKIE_KEY "1234567890123456"]
+  :join?      false
+  :ssl        false
+  :routes     #ig/ref :rhinocratic.fud/routes
+  :logger     #ig/ref :rhinocratic.fud/logger}
+
+ :rhinocratic.fud/routes
+ {
+  :logger     #ig/ref :rhinocratic.fud/logger}
+
+ :rhinocratic.fud/db
+ {:datasource {:dbtype             "postgres"
+               :dbname             "fud"
+               :username           "fud"
+               :schema             "fud"
+               :connectionInitSql  "COMMIT;" ;; Included because of this issue: https://github.com/brettwooldridge/HikariCP/issues/1369
+               :password           #profile {:dev  #or [#env FUD_PGPASSWORD #ref [:secrets :fud-db-password-dev]]
+                                             :prod #or [#env FUD_PGPASSWORD]}
+               :host               "localhost"
+               :port               #profile {:dev  6666
+                                             :prod 5432}
+               :auto-commit        true
+               :read-only          false
+               :connection-timeout 30000
+               :validation-timeout 5000
+               :idle-timeout       300000
+               :max-lifetime       1800000
+               :minimum-idle       #profile {:dev  #or [#env FUD_DB_POOL_MIN_IDLE 10]
+                                             :prod #or [#env FUD_DB_POOL_MIN_IDLE 10]}
+               :maximum-pool-size  #profile {:dev  #or [#env FUD_DB_POOL_MAX_SIZE 2]
+                                             :prod #or [#env FUD_DB_POOL_MAX_SIZE 2]}
+               :pool-name          "db-pool"
+               :register-mbeans    false
+               :driver-class-name  "org.postgis.DriverWrapperAutoprobe"}
+  :logger     #ig/ref :rhinocratic.fud/logger}
+
+ :rhinocratic.fud/logger
+ {:global-context {:app-name #ref [:app-name]
+                   :profile  #opt :profile}
+  :publishers     #profile {:dev  [{:type    :console
+                                    :pretty? true}]
+                            :prod [{:type   :console
+                                    :pretty? true}]}}}
