@@ -41,6 +41,7 @@ DROP TABLE IF EXISTS fud.fud_item;
 CREATE TABLE fud.fud_item (
     fud_item_id INT GENERATED ALWAYS AS IDENTITY,
     fud_item_name TEXT NOT NULL,
+    low_stock_warning_level INT NULL,
     notes TEXT,
     brand_id INT NOT NULL,
     supplier_id INT NOT NULL,
@@ -73,6 +74,7 @@ CREATE TABLE fud.inventory_item (
     expiry_year INT NOT NULL,
     date_expiry DATE NOT NULL,
     date_added TIMESTAMP NOT NULL,
+    date_used TIMESTAMP NULL,
     PRIMARY KEY(inventory_item_id),
     CONSTRAINT fk_fud_item FOREIGN KEY(fud_item_id) REFERENCES fud.fud_item(fud_item_id) ON DELETE CASCADE
 );
