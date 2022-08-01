@@ -17,48 +17,38 @@
    [reitit.coercion.spec]
    [reitit.ring.coercion :as coercion]
 
-   [rhinocratic.fud.web.site.routes :as site-public-routes]
-   [rhinocratic.fud.web.site.admin.routes :as site-admin-routes]
-   [rhinocratic.fud.web.api.routes :as api-public-routes]
-   [rhinocratic.fud.web.api.admin.routes :as api-admin-routes]
+   [rhinocratic.fud.web.api.routes :as api-routes]
    ))
 
 (defn ping-handler [_]
   {:status 200 :body "OK"})
 
-(defn routes []
-  [["/"
-    (site-public-routes/routes)]
-   ["/admin"
-    (site-admin-routes/routes)]
-   ["/api"
-    (api-public-routes/routes)]
-   ["/api/admin"
-    (api-admin-routes/routes)]
+(defn routes [db]
+  [["/api" (api-routes/routes db)]
    ["/*" (ring/create-resource-handler)]
    ["/healthz" {:get ping-handler}]])
 
-(defmulti router 
+(defmulti router
   "Create a router - a slow one for development, fast for everything else"
-  identity)
+  (fn [key _db] key))
 
 ;; Slow router that recalculates the route tree on every invocation.
 ;; Useful for development whilst the tree is still changing regularly.
 (defmethod router :dev
-  [_]
+  [_ db]
   (println "Creating dev router")
-  #(ring/router (routes) {:conflicts (constantly nil)}))
+  #(ring/router (routes db) {:conflicts nil}))
 
 ;; Fast router that returns the pre-calculated route tree.
 (defmethod router :default
-  [_]
+  [_ db]
   (println "Creating prod router")
-  (constantly (ring/router (routes) {:conflicts (constantly nil)})))
+  (constantly (ring/router (routes db) {:conflicts nil})))
 
 (defn app
   "Application ring handler"
-  [profile]
-  (let [r (router profile)]
+  [profile db]
+  (let [r (router profile db)]
     (ring/ring-handler
      (r)
      (ring/create-default-handler))))

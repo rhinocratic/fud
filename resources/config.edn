@@ -14,9 +14,10 @@
   :logger     #ig/ref :rhinocratic.fud/logger}
 
  :rhinocratic.fud/app
- {:logger     #ig/ref :rhinocratic.fud/logger
+ {:db         #ig/ref :rhinocratic.fud/db
+  :logger     #ig/ref :rhinocratic.fud/logger
   :profile    #opt :profile}
-
+ 
  :rhinocratic.fud/db
  {:datasource {:dbtype             "postgres"
                :dbname             "fud"

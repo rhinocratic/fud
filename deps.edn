@@ -42,8 +42,7 @@
         {com.bhauman/figwheel-main {:mvn/version "0.2.18"}}
         :extra-paths ["target" "test/clj" "test/cljc" "test/cljs" "src/devcards"]}
   :run-m {:main-opts ["-m" "rhinocratic.fud"]}
-  :run-x {:ns-default rhinocratic.fud
-          
+  :run-x {:ns-default rhinocratic.fud 
           :exec-fn greet
           :exec-args {:name "Clojure"}}
   :build {:deps {io.github.seancorfield/build-clj

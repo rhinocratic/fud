@@ -36,9 +36,9 @@
 
 ;; Create the application routes
 (defmethod ig/init-key ::app
-  [_ {:keys [profile]}]
+  [_ {:keys [profile db]}]
   (u/log ::create-app :message "Creating application routes")
-  (router/app profile))
+  (router/app profile db))
 
 ;; Start the server
 (defmethod ig/init-key ::app-server 
