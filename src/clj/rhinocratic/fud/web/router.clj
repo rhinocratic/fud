@@ -35,6 +35,7 @@
     (api-public-routes/routes)]
    ["/api/admin"
     (api-admin-routes/routes)]
+   ["/*" (ring/create-resource-handler)]
    ["/healthz" {:get ping-handler}]])
 
 (defmulti router 
@@ -46,16 +47,18 @@
 (defmethod router :dev
   [_]
   (println "Creating dev router")
-  #(ring/router (routes)))
+  #(ring/router (routes) {:conflicts (constantly nil)}))
 
 ;; Fast router that returns the pre-calculated route tree.
 (defmethod router :default
   [_]
   (println "Creating prod router")
-  (constantly (ring/router (routes))))
+  (constantly (ring/router (routes) {:conflicts (constantly nil)})))
 
 (defn app
   "Application ring handler"
   [profile]
   (let [r (router profile)]
-    (ring/ring-handler (r))))
+    (ring/ring-handler
+     (r)
+     (ring/create-default-handler))))

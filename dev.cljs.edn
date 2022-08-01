@@ -1,7 +1,7 @@
 ^{:css-dirs ["resources/public/css"]
   :watch-dirs ["src/cljs" "src/cljc" "src/devcards" "test/cljc" "test/cljs"]
   :auto-testing {:cljs-test-display true
-                 :namespaces [fud.pagination-test]}
+                 :namespaces []}
   :extra-main-files {:devcards {:main fud.devcards.devcards}}}
-{:main fud.core
+{:main rhinocratic.fud.site
  :devcards true}

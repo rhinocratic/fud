@@ -1,4 +1,4 @@
-(ns rhinocratic.fud-test
+(ns rhinocratic.fud.clj-test
   (:require [clojure.test :refer :all]
             [rhinocratic.fud.fud :refer :all]))
 

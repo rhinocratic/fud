@@ -1,4 +1,4 @@
-(ns rhinocratic.fud-cljs-test
+(ns rhinocratic.fud.cljs-test
   (:require
    [clojure.test :refer [deftest testing is]]))
 
