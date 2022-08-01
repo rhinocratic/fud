@@ -10,12 +10,12 @@
   :cookie-key #or [#env FUD_COOKIE_KEY "1234567890123456"]
   :join?      false
   :ssl        false
-  :routes     #ig/ref :rhinocratic.fud/routes
+  :app        #ig/ref :rhinocratic.fud/app
   :logger     #ig/ref :rhinocratic.fud/logger}
 
- :rhinocratic.fud/routes
- {
-  :logger     #ig/ref :rhinocratic.fud/logger}
+ :rhinocratic.fud/app
+ {:logger     #ig/ref :rhinocratic.fud/logger
+  :profile    #opt :profile}
 
  :rhinocratic.fud/db
  {:datasource {:dbtype             "postgres"

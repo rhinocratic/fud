@@ -1,32 +1,33 @@
 {:paths ["src/clj" "resources"]
- :deps {org.clojure/clojure {:mvn/version "1.11.1"}
+ :deps {org.clojure/clojure               {:mvn/version "1.11.1"}
 
         ;; System/config
-        integrant/integrant {:mvn/version "0.8.0"}
-        integrant/repl {:mvn/version "0.3.2"}
-        aero/aero {:mvn/version "1.1.6"}
+        integrant/integrant               {:mvn/version "0.8.0"}
+        integrant/repl                    {:mvn/version "0.3.2"}
+        aero/aero                         {:mvn/version "1.1.6"}
 
         ;; DB
-        org.postgresql/postgresql {:mvn/version "42.4.0"}
-        com.zaxxer/HikariCP {:mvn/version "5.0.1"}
+        org.postgresql/postgresql         {:mvn/version "42.4.0"}
+        com.zaxxer/HikariCP               {:mvn/version "5.0.1"}
         com.github.seancorfield/next.jdbc {:mvn/version "1.2.790"}
-        com.github.seancorfield/honeysql {:mvn/version "2.3.911"}
+        com.github.seancorfield/honeysql  {:mvn/version "2.3.911"}
 
         ;; Web
-        compojure/compojure {:mvn/version "1.7.0"}
-        metosin/reitit {:mvn/version "0.5.18"}
-        ring/ring {:mvn/version "1.9.5"}
-        ring/ring-defaults {:mvn/version "0.3.3"}
+        compojure/compojure               {:mvn/version "1.7.0"}
+        metosin/reitit                    {:mvn/version "0.5.18"}
+        ring/ring                         {:mvn/version "1.9.5"}
+        ring/ring-defaults                {:mvn/version "0.3.3"}
+        ring/ring-mock                    {:mvn/version "0.4.0"}
 
         ;; Auth
-        clj-http/clj-http {:mvn/version "3.12.3"}
-        ovotech/ring-jwt {:mvn/version "2.3.0"}
-        cljsjs/auth0-lock {:mvn/version "11.16.2-0"}
+        clj-http/clj-http                 {:mvn/version "3.12.3"}
+        ovotech/ring-jwt                  {:mvn/version "2.3.0"}
+        cljsjs/auth0-lock                 {:mvn/version "11.16.2-0"}
 
         ;; Logging
-        org.slf4j/slf4j-nop {:mvn/version "2.0.0-alpha7"} ;; Silence slf4j warnings
-        com.brunobonacci/mulog {:mvn/version "0.9.0"}
-        ring-logger/ring-logger {:mvn/version "1.1.1"}}
+        org.slf4j/slf4j-nop               {:mvn/version "2.0.0-alpha7"} ;; Silence slf4j warnings
+        com.brunobonacci/mulog            {:mvn/version "0.9.0"}
+        ring-logger/ring-logger           {:mvn/version "1.1.1"}}
  
  :aliases
  {:dev {:extra-paths ["dev"]}

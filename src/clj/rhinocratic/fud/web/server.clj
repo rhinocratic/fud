@@ -3,5 +3,5 @@
    [ring.adapter.jetty :as jetty]))
 
 (defn start
-  [{:keys [port join routes]}]
-  (jetty/run-jetty routes {:port port :join? join}))
+  [{:keys [port join app]}]
+  (jetty/run-jetty app {:port port :join? join}))

@@ -6,7 +6,7 @@
    [rhinocratic.fud.config :as conf]
    [rhinocratic.fud.logging :as log]
    [rhinocratic.fud.db.connection :as db]
-   [rhinocratic.fud.web.routes :as routes]
+   [rhinocratic.fud.web.router :as router]
    [rhinocratic.fud.web.server :as srv]))
 
 ;; Start logging 
@@ -35,10 +35,10 @@
   (.close db))
 
 ;; Create the application routes
-(defmethod ig/init-key ::routes
-  [_ _config]
-  (u/log ::create-app-routes :message "Creating routes")
-  (routes/app-routes {}))
+(defmethod ig/init-key ::app
+  [_ {:keys [profile]}]
+  (u/log ::create-app :message "Creating application routes")
+  (router/app profile))
 
 ;; Start the server
 (defmethod ig/init-key ::app-server 
