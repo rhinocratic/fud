@@ -1,0 +1,3 @@
+{:main fud.core
+ :optimizations :advanced
+ :clean-outputs true}
