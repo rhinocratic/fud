@@ -6,18 +6,16 @@
    [rhinocratic.fud.web.api.handlers :as h]))
 
 (s/def ::role #{:admin})
-(s/def ::roles (s/coll-of ::role :into #{}))
-(s/def ::item-id int?)
 
 (defn handler 
-  [{:keys [item-id]}]
-  {:status 200 :body (format "OK - %s" item-id)})
+  [args]
+  {:status 200 :body (format "OK - %s" (get-in args [:path-params :item-id]))})
 
 (defn routes
   []
-  [["" {:get handler}
-    ["/items" {:get handler}
-     ["/:item-id" {:get handler
-                  #_#_:coercion cs/coercion
-                  #_#_:parameters {:path {:item-id ::item-id}}}]] 
-    #_{:spec (s/merge (s/keys :req [::roles]) ::rs/default-data)}]])
+  [["" {:get handler}]
+   ["/items" {:get handler}]
+   ["/items/:item-id" {:get handler
+                      :coercion cs/coercion
+                      :parameters {:path {:item-id int?}}}]]
+   #_{:spec (s/merge (s/keys :req [::roles]) ::rs/default-data)})
