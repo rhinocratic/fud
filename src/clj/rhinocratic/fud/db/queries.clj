@@ -17,6 +17,14 @@
                  (-> (h/select :fud_item_name :notes)
                      (h/from :fud_item)
                      sql/format)))
+(defn fud-item
+  [conn item-id]
+  (jdbc/execute-one! conn
+                     (-> (h/select :fud_item_name :notes)
+                         (h/from :fud_item)
+                         (h/where {:fud_item_id item-id})
+                         sql/format)))
+
 
 (defn new-supplier
   [conn {:keys [name website]}]
@@ -27,13 +35,14 @@
                          sql/format)))
 
 
-(comment 
-  
+(comment
+
   (let [conn (:rhinocratic.fud/db (user/system))]
     (all-suppliers conn))
-  
+
   (let [conn (:rhinocratic.fud/db (user/system))]
     (new-supplier conn {:name "The Italian Shop"
                         :website "https://italianfoodshop.co.uk/"}))
+  
   
   )
