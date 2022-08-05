@@ -6,7 +6,7 @@ alter role fud set search_path = fud,public;
 ALTER DATABASE fud OWNER TO fud;
 ALTER SCHEMA fud OWNER TO fud;
 
-DROP TABLE IF EXISTS fud.supplier;
+DROP TABLE IF EXISTS fud.supplier CASCADE;
 CREATE TABLE fud.supplier (
     supplier_id INT GENERATED ALWAYS AS IDENTITY,
     supplier_name TEXT NOT NULL,
@@ -15,29 +15,32 @@ CREATE TABLE fud.supplier (
     telephone TEXT,
     address TEXT,
     notes TEXT,
-    PRIMARY KEY(supplier_id)
+    PRIMARY KEY(supplier_id),
+    UNIQUE(supplier_name)
 );
 ALTER TABLE fud.supplier OWNER TO fud;
 
-DROP TABLE IF EXISTS fud.brand;
+DROP TABLE IF EXISTS fud.brand CASCADE;
 CREATE TABLE fud.brand (
     brand_id INT GENERATED ALWAYS AS IDENTITY,
     brand_name TEXT NOT NULL,
     notes TEXT,
-    PRIMARY KEY(brand_id)
+    PRIMARY KEY(brand_id),
+    UNIQUE(brand_name)
 );
 ALTER TABLE fud.brand OWNER TO fud;
 
-DROP TABLE IF EXISTS fud.fud_category;
+DROP TABLE IF EXISTS fud.fud_category CASCADE;
 CREATE TABLE fud.fud_category (
     fud_category_id INT GENERATED ALWAYS AS IDENTITY,
     fud_category_name TEXT NOT NULL,
     notes TEXT,
-    PRIMARY KEY(fud_category_id)
+    PRIMARY KEY(fud_category_id),
+    UNIQUE(fud_category_name)
 );
 ALTER TABLE fud.fud_category OWNER TO fud;
 
-DROP TABLE IF EXISTS fud.fud_item;
+DROP TABLE IF EXISTS fud.fud_item CASCADE;
 CREATE TABLE fud.fud_item (
     fud_item_id INT GENERATED ALWAYS AS IDENTITY,
     fud_item_name TEXT NOT NULL,
@@ -46,6 +49,7 @@ CREATE TABLE fud.fud_item (
     brand_id INT NOT NULL,
     supplier_id INT NOT NULL,
     PRIMARY KEY(fud_item_id),
+    UNIQUE(fud_item_name),
     CONSTRAINT fk_brand FOREIGN KEY(brand_id) REFERENCES fud.brand(brand_id) ON DELETE CASCADE,
     CONSTRAINT fk_supplier FOREIGN KEY(supplier_id) REFERENCES fud.supplier(supplier_id) ON DELETE CASCADE
 );
@@ -54,7 +58,7 @@ CREATE INDEX idx_fud_item_name ON fud.fud_item(fud_item_name);
 CREATE INDEX idx_fud_item_brand_id ON fud.fud_item(brand_id);
 CREATE INDEX idx_fud_item_supplier_id ON fud.fud_item(supplier_id);
 
-DROP TABLE IF EXISTS fud.fud_item_category;
+DROP TABLE IF EXISTS fud.fud_item_category CASCADE;
 CREATE TABLE fud.fud_item_category (
     fud_item_id INT NOT NULL,
     fud_category_id INT NOT NULL,
@@ -65,7 +69,7 @@ ALTER TABLE fud.fud_item_category OWNER TO fud;
 CREATE INDEX idx_fud_item_category_fud_item_id ON fud.fud_item_category(fud_item_id);
 CREATE INDEX idx_fud_item_category_fud_category_id ON fud.fud_item_category(fud_category_id);
 
-DROP TABLE IF EXISTS fud.inventory_item;
+DROP TABLE IF EXISTS fud.inventory_item CASCADE;
 CREATE TABLE fud.inventory_item (
     inventory_item_id INT GENERATED ALWAYS AS IDENTITY,
     fud_item_id INT NOT NULL,

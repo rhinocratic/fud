@@ -8,13 +8,18 @@
   {:status 200 :body (q/select-all db table)})
 
 (defn item-by-id 
-  [db table req]
-  (let [id (get-in req [:parameters :path :id])
-        item (q/select-by-id db table id)]
+  [db table {:keys [path-params]}]
+  (let [item (q/select-by-id db table (:id path-params))]
     (if item 
       {:status 200 :body item}
       {:status 404})))
 
-(defn suppliers-handler-post
-  [{:keys [db]}]
-  {:status 200 :body (q/new-supplier db nil)}) ;; QQQQ 
+(defn new-item 
+  [db table {:keys [body-params]}]
+  (println "Creating a new item")
+  (println db)
+  (println table)
+  (println (table body-params))
+  (let [row (table body-params)
+        item (q/create-new db table row)]
+    {:status 201 :body item}))
