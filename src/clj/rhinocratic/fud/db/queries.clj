@@ -31,6 +31,7 @@
   "Select the row with the given ID from a table"
   [db table cols pkey id]
   (try
+    (prn (select-by-id-sql table cols pkey id))
     (jdbc/execute-one! db (select-by-id-sql table cols pkey id))
     (catch Exception e
       (u/log ::select-row-by-id-error :message (ex-message e))

@@ -6,12 +6,11 @@
 
 (defn all-items
   [db table _req]
-  ;; (clojure.pprint/pprint _req)
   {:status 200 :body (q/select-all db table)})
 
 (defn item-by-id 
-  [db table {:keys [path-params]}]
-  (let [item (q/select-by-id db table (:id path-params))]
+  [db table req]
+  (let [item (q/select-by-id db table (get-in req [:parameters :path :id]))]
     (if item 
       {:status 200 :body item}
       {:status 404})))
