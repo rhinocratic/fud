@@ -1,10 +1,9 @@
 (ns rhinocratic.fud.web.router
   (:require
-   [reitit.core :as r]
    [reitit.ring :as ring]
    [reitit.coercion.spec :as coercion-spec]
    [reitit.ring.coercion :as ring-coercion]
-   [reitit.ring.spec :as rrs]
+   [reitit.ring.spec :as ring-spec]
    [reitit.ring.middleware.muuntaja :as muuntaja]
    [reitit.ring.middleware.multipart :as multipart]
    [reitit.ring.middleware.parameters :as parameters]
@@ -19,17 +18,16 @@
   {:status 200 :body "OK"})
 
 (defn routes
-  []
-  [["/api" (api-routes/routes)]
+  [db]
+  [["/api" (#'api-routes/routes db)]
    ["/healthz" {:get {:handler ping-handler :no-doc true}}]
-   ["/swagger.json"
-    {:get {:no-doc true
-           :swagger {:info {:title "my-api"}}
-           :handler (swagger/create-swagger-handler)}}]])
+   ["/swagger.json" {:get {:no-doc true
+                           :swagger {:info {:title "fud api"}}
+                           :handler (swagger/create-swagger-handler)}}]])
 
 (def router-opts
  "Router options - common to dev and prod routers" 
-  {:validate rrs/validate
+  {:validate ring-spec/validate
    ::rs/explain e/expound-str
    :data {:muuntaja m/instance
           :coercion coercion-spec/coercion
@@ -49,13 +47,13 @@
 (defmethod router :dev
   [_ db]
   (println "Creating dev router")
-  #(ring/router (routes) router-opts))
+  #(ring/router (routes db) router-opts))
 
 ;; Fast router that returns the pre-calculated route tree.
 (defmethod router :default
   [_ db]
   (println "Creating prod router")
-  (constantly (ring/router (routes) router-opts)))
+  (constantly (ring/router (routes db) router-opts)))
 
 (defn app
   "Application ring handler"
@@ -70,16 +68,6 @@
 
 
 (comment
-
-  (def router
-    (r/router
-     [["/ping" ::ping]
-      ["/pong" identity]
-      ["/users" {:get {:roles #{:admin}
-                       :handler identity}}]]))
-
-  (r/routes router)
-  (r/match-by-path router "/ping")
-  (r/match-by-name router ::ping)
+  
   
   #_{})
