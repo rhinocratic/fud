@@ -37,16 +37,17 @@
       (throw (ex-info "SQL error whilst selecting row" {})))))
 
 (defn insert-row-sql
-  [table row]
+  [table row pkey]
   (-> (h/insert-into table)
       (h/values [row])
+      (h/returning pkey)
       (sql/format {:pretty true})))
 
 (defn insert-row 
   "Insert a new row into a table"
-  [db table row]
+  [db table row pkey]
   (try
-    (jdbc/execute-one! db (insert-row-sql table row))
+    (jdbc/execute-one! db (insert-row-sql table row pkey))
     (catch Exception e 
       (u/log ::insert-row-error :message (ex-message e))
       (throw (ex-info "SQL error whilst inserting row" {})))))
@@ -105,25 +106,26 @@
 
 (defmethod create-new :brand 
   [db table row]
-  (insert-row db table row))
+  (insert-row db table row :brand_id))
 
 (defmethod create-new :supplier 
   [db table row]
-  (insert-row db table row))
+  (insert-row db table row :supplier_id))
 
 (defmethod create-new :fud_category
   [db table row]
-  (insert-row db table row))
+  (insert-row db table row :fud_category_id))
 
 (defmethod create-new :fud_item
   [db table row]
-  (insert-row db table row))
+  (insert-row db table row :fud_item_id))
 
 (defmethod create-new :inventory_item
   [db table row]
   (insert-row db table (assoc row
                               :date-added (java.time.LocalDateTime/now)
-                              :expiry_date (java.time.LocalDateTime/now))))
+                              :expiry_date (java.time.LocalDateTime/now))
+              :inventory_item_id))
 
 
 

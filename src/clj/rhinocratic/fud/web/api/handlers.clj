@@ -1,10 +1,12 @@
 (ns rhinocratic.fud.web.api.handlers
   (:require 
+   [reitit.core :as r]
    [com.brunobonacci.mulog :as u]
    [rhinocratic.fud.db.queries :as q]))
 
 (defn all-items
   [db table _req]
+  ;; (clojure.pprint/pprint _req)
   {:status 200 :body (q/select-all db table)})
 
 (defn item-by-id 
@@ -15,11 +17,12 @@
       {:status 404})))
 
 (defn new-item 
-  [db table {:keys [body-params]}]
-  (println "Creating a new item")
-  (println db)
-  (println table)
-  (println (table body-params))
+  [db table reverse-route-name {:keys [body-params] ::r/keys [router]}]
   (let [row (table body-params)
-        item (q/create-new db table row)]
-    {:status 201 :body item}))
+        new-item-id (-> (q/create-new db table row)
+                        vals
+                        first)
+        new-item-location (->> {:id new-item-id}
+                               (r/match-by-name router reverse-route-name)
+                               :path)]
+    {:status 201 :headers {"Location" new-item-location}}))
