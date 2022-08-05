@@ -27,13 +27,33 @@
   "Select an item from a table by primary key"
   (fn [_db table _id] table))
 
+(defmethod select-all :brand
+  [db table]
+  (select-all-items db table [:brand_id :brand_name :notes]))
+
 (defmethod select-all :supplier
   [db table]
-  (select-all-items db table [:supplier_id :supplier_name :website]))
+  (select-all-items db table [:supplier_id :supplier_name :website :email :telephone :address :notes]))
+
+(defmethod select-all :fud_category
+  [db table]
+  (select-all-items db table [:fud_category_id :fud_category_name :notes]))
 
 (defmethod select-all :fud_item 
   [db table]
-  (select-all-items db table [:fud_item_name :notes]))
+  (select-all-items db table [:fud_item_id :fud_item_name :low_stock_warning_level :notes :brand_id :supplier_id]))
+
+(defmethod select-by-id :brand
+  [db table id]
+  (select-item-by-id db table [:brand_id :brand_name :notes] :brand_id id))
+
+(defmethod select-by-id :supplier
+  [db table id]
+  (select-item-by-id db table [:supplier_id :supplier_name :website :email :telephone :address :notes] :supplier_id id))
+
+(defmethod select-by-id :fud_category
+  [db table id]
+  (select-item-by-id db table [:fud_category_id :fud_category_name :notes] :fud_category_id id))
 
 (defmethod select-by-id :fud_item
   [db table id]
