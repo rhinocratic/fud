@@ -26,7 +26,10 @@
    ["/suppliers/:id" {:name ::supplier
                       :get {:handler (partial #'h/item-by-id db :supplier)
                             :summary "Fetch a supplier by ID"
-                            :parameters {:path {:id int?}}}}]
+                            :parameters {:path {:id int?}}}
+                      :delete {:handler (partial #'h/delete-item db :supplier)
+                               :summary "Delete a supplier by ID"
+                               :parameters {:path {:id int?}}}}]
    ["/fud-categories/:id" {:name ::fud-category
                            :get {:handler (partial #'h/item-by-id db :fud-category)
                                  :summary "Fetch a fud category by ID"

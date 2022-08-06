@@ -15,6 +15,13 @@
       {:status 200 :body item}
       {:status 404})))
 
+(defn delete-item 
+  [db table id]
+  (let [item (q/delete-by-id db table id)]
+    (if item
+      {:status 200 :body item}
+      {:status 404})))
+
 (defn new-item 
   [db table reverse-route-name {:keys [body-params] ::r/keys [router]}]
   (let [row (table body-params)
