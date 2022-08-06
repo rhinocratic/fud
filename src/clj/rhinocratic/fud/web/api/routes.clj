@@ -6,41 +6,37 @@
 
 (s/def ::role #{:admin})
 
+(defn all-rows-handlers
+  [db table spec singular plural]
+  {:get {:handler (partial #'h/fetch-all db table)
+         :summary (format "List all %s" plural)}
+   :post {:handler (partial #'h/create db :supplier ::supplier)
+          :parameters {:body {table spec}
+          :summary (format "Create a new %s" singular)}}})
+
+(defn single-row-handlers 
+  [db table description]
+  {:name       (keyword *ns* table)
+   :parameters {:path {:id int?}}
+   :get        {:handler (partial #'h/fetch-one db table)
+                :summary (format "Fetch %s by ID" description)}
+   :put        {:handler (partial #'h/edit db table)
+                :summary (format "Delete %s by ID" description)}
+   :delete     {:handler (partial #'h/delete db table)
+                :summary (format "Delete %s by ID" description)}})
+
 (defn routes
   [db]
-  [["/brands" {:get {:handler (partial #'h/fetch-all db :brand)
-                     :summary "List all brands"}}]
-   ["/suppliers" {:get {:handler (partial #'h/fetch-all db :supplier)
-                        :summary "List all suppliers"}
-                  :post {:handler (partial #'h/create db :supplier ::supplier)
-                         :parameters {:body {:supplier ::api-spec/supplier}}
-                         :summary "Create a new supplier"}}]
-   ["/fud-categories" {:get {:handler (partial #'h/fetch-all db :fud_category)
-                             :summary "List all fud categories"}}]
-   ["/fud-items" {:get {:handler (partial #'h/fetch-all db :fud_item)
-                        :summary "List all fud items"}}] 
-   ["/brands/:id" {:name ::brand
-                   :get {:handler (partial #'h/fetch-one db :brand)
-                         :summary "Fetch a brand by ID"
-                         :parameters {:path {:id int?}}}}]
-   ["/suppliers/:id" {:name ::supplier
-                      :get {:handler (partial #'h/fetch-one db :supplier)
-                            :summary "Fetch a supplier by ID"
-                            :parameters {:path {:id int?}}}
-                      :put {:handler (partial #'h/edit db :supplier)
-                            :summary "Delete a supplier by ID" 
-                            :parameters {:path {:id int?}}}
-                      :delete {:handler (partial #'h/delete db :supplier)
-                               :summary "Delete a supplier by ID"
-                               :parameters {:path {:id int?}}}}]
-   ["/fud-categories/:id" {:name ::fud-category
-                           :get {:handler (partial #'h/fetch-one db :fud-category)
-                                 :summary "Fetch a fud category by ID"
-                                 :parameters {:path {:id int?}}}}]
-   ["/fud-items/:id" {:name ::fud-item
-                      :get {:handler (partial #'h/fetch-one db :fud-item)
-                            :summary "Fetch a fud item by ID"
-                            :parameters {:path {:id int?}}}}]])
+  [["/brands" (all-rows-handlers db :brand ::api-spec/brand "brand" "brands")]
+   ["/suppliers" (all-rows-handlers db :supplier ::api-spec/supplier "supplier" "supplier")]
+   ["/fud-categories" (all-rows-handlers db :fud_category ::api-spec/fud_category "fud category" "fud categories")]
+   ["/fud-items" (all-rows-handlers db :fud_item ::api-spec/fud_item "fud item" "fud items")] 
+   ["/inventory-items" (all-rows-handlers db :inventory_item ::api-spec/inventory_item "inventory item" "inventory items")]
+   ["/brands/:id" (single-row-handlers db :brand "a brand")]
+   ["/suppliers/:id" (single-row-handlers db :supplier "a supplier")] 
+   ["/fud-categories/:id" (single-row-handlers db :fud_category "a fud category")] 
+   ["/fud-items/:id" (single-row-handlers db :fud_item "a fud item")] 
+   ["/inventory-items/:id" (single-row-handlers db :inventory_item "an inventory item")]])
 
 (comment 
   
