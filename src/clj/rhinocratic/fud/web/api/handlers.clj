@@ -3,43 +3,66 @@
    [reitit.core :as r]
    [rhinocratic.fud.db.queries :as q]))
 
+(defn error? 
+  [value]
+  (contains? value :error))
+
+(defn with-status
+  "Attach a status code to the result of a handler operation"
+  ([item]
+   (with-status item 200))
+  ([item status]
+   (cond
+     (error? item) (:error item)
+     (nil? item) {:status 404}
+     :else {:status status :body item})))
+
 (defn fetch-all
   "Fetch all rows from the DB"
   [db table _req]
-  {:status 200 :body (q/select-all db table)})
+  (let [item (q/select-all db table)]
+    (with-status item)))
 
 (defn fetch-one 
   "Fetch a single item from the DB"
   [db table req]
-  (let [item (q/select-one db table (get-in req [:parameters :path :id]))]
-    (if item 
-      {:status 200 :body item}
-      {:status 404})))
+  (let [id (get-in req [:parameters :path :id])
+        item (q/select-one db table id)]
+    (with-status item)))
 
-(defn delete 
+(defn delete
   "Delete a single item from the DB"
-  [db table id]
-  (let [item (q/delete db table id)]
-    (if item
-      {:status 200 :body item}
-      {:status 404})))
+  [db table req]
+  (let [id (get-in req [:parameters :path :id])
+        item (q/delete db table id)]
+    (with-status item)))
+
+(defn location
+  [table item router reverse-route-name]
+  (->> item
+       ((q/primary-key table))
+       (assoc {} :id)
+       (r/match-by-name router reverse-route-name)
+       :path))
+
+(defn with-location 
+  [item location]
+  (assoc item :headers {"Location" location}))
 
 (defn create 
   "Create a new item in the DB"
   [db table reverse-route-name {:keys [body-params] ::r/keys [router]}]
   (let [row (table body-params)
-        new-item-id (-> (q/create db table row)
-                        ((q/primary-key table)))
-        new-item-location (->> {:id new-item-id}
-                               (r/match-by-name router reverse-route-name)
-                               :path)]
-    {:status 201 :headers {"Location" new-item-location}}))
+        item (q/create db table row)
+        location (location table item router reverse-route-name)]
+    (-> item
+        (with-status 201)
+        (with-location location))))
 
 (defn edit
   "Update a single item in the DB"
-  [db table id  {:keys [body-params]}]
+  [db table {:keys [body-params] :as req}]
   (let [row (table body-params)
+        id (get-in req [:parameters :path :id])
         item (q/edit db table id row)]
-    (if item
-      {:status 200 :body item}
-      {:status 404})))
+    (with-status item)))

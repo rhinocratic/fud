@@ -1,5 +1,6 @@
 (ns rhinocratic.fud.db.queries
   (:require 
+   [clojure.string :as str]
    [next.jdbc :as jdbc]
    [honey.sql :as sql]
    [honey.sql.helpers :as h]
@@ -13,6 +14,11 @@
       (str "_id")
       keyword))
 
+(defn returning
+  "Calls honey-sql 'returning' with a vector of columns"
+  [builder cols]
+  (apply (partial h/returning builder) cols))
+
 (def ^:private display-columns
   "Map containing the columns that should be returned by a SELECT for each table"
   {:brand [:brand_id :brand_name :notes]
@@ -25,7 +31,7 @@
   [table]
   (-> (apply h/select (display-columns table))
       (h/from table)
-      sql/format {:pretty true}))
+      (sql/format {:pretty true})))
 
 (defn select-all
   "Select all rows from a table"
@@ -33,15 +39,15 @@
   (try
     (jdbc/execute! db (select-all-sql table))
     (catch Exception e 
-      (u/log ::select-all-rows-error :message (ex-message e))
-      (throw (ex-info "Error whilst selecting all rows" {:table table})))))
+      (u/log ::select-all-rows-error :message (ex-message e) :table table)
+      {:error {:status 500}})))
 
 (defn- select-by-id-sql 
   [table id]
   (-> (apply h/select (display-columns table))
       (h/from table)
       (h/where [:= (primary-key table) id])
-      sql/format {:pretty true}))
+      (sql/format {:pretty true})))
 
 (defn select-one
   "Select the row with the given ID from a table"
@@ -49,14 +55,14 @@
   (try
     (jdbc/execute-one! db (select-by-id-sql table id))
     (catch Exception e
-      (u/log ::select-row-by-id-error :message (ex-message e))
-      (throw (ex-info "Eror whilst selecting row" {:table table :id id})))))
+      (u/log ::select-row-by-id-error :message (ex-message e) :table table :id id)
+      {:error {:status 500}})))
 
 (defn- insert-row-sql
   [table row]
   (-> (h/insert-into table)
       (h/values [row])
-      (h/returning (display-columns table))
+      (returning (display-columns table))
       (sql/format {:pretty true})))
 
 (defn insert 
@@ -65,14 +71,16 @@
   (try
     (jdbc/execute-one! db (insert-row-sql table row))
     (catch Exception e 
-      (u/log ::insert-row-error :message (ex-message e))
-      (throw (ex-info "Error whilst inserting row" {:table table :row row})))))
+      (u/log ::insert-row-error :message (ex-message e) :table table :row row)
+      (if (str/includes? (ex-message e) "duplicate")
+        {:error {:status 409}}
+        {:error {:status 500}}))))
 
 (defn- delete-row-sql
   [table id]
   (-> (h/delete-from table)
       (h/where [:= (primary-key table) id])
-      (h/returning (display-columns table))
+      (returning (display-columns table))
       (sql/format {:pretty true})))
 
 (defn delete
@@ -81,15 +89,15 @@
   (try 
     (jdbc/execute-one! db (delete-row-sql table id))
     (catch Exception e 
-      (u/log ::delete-row-error :message (ex-message e))
-      (throw (ex-info "Error whilst deleting row" {:table table :id id})))))
+      (u/log ::delete-row-error :message (ex-message e) :table table :id id)
+      {:error {:status 500}})))
 
 (defn- update-row-sql
   [table id row]
   (-> (h/update table)
-      (h/values row)
       (h/where [:= (primary-key table) id])
-      (h/returning (display-columns table))
+      (h/set row)
+      (returning (display-columns table))
       (sql/format {:pretty true})))
 
 (defn- update-row
@@ -97,8 +105,10 @@
   (try 
     (jdbc/execute-one! db (update-row-sql table id row))
     (catch Exception e 
-      (u/log ::update-row-error :message (ex-message e))
-      (throw (ex-info "Error whilst updating row" {:table table :id id :row row})))))
+      (u/log ::update-row-error :message (ex-message e) :table table :id id :row row)
+      (if (str/includes? (ex-message e) "duplicate")
+        {:error {:status 409}}
+        {:error {:status 500}}))))
 
 (defmulti ^:private augment-row
   "Do any required processing of a new or updated row before committing it to the DB"
