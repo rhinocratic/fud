@@ -47,21 +47,31 @@ CREATE TABLE fud.fud_item (
     low_stock_warning_level INT NULL,
     notes TEXT,
     brand_id INT NOT NULL,
-    supplier_id INT NOT NULL,
     PRIMARY KEY(fud_item_id),
-    UNIQUE(fud_item_name),
-    CONSTRAINT fk_brand FOREIGN KEY(brand_id) REFERENCES fud.brand(brand_id) ON DELETE CASCADE,
-    CONSTRAINT fk_supplier FOREIGN KEY(supplier_id) REFERENCES fud.supplier(supplier_id) ON DELETE CASCADE
+    UNIQUE(fud_item_name, brand_id),
+    CONSTRAINT fk_brand FOREIGN KEY(brand_id) REFERENCES fud.brand(brand_id) ON DELETE CASCADE
 );
 ALTER TABLE fud.fud_item OWNER TO fud;
 CREATE INDEX idx_fud_item_name ON fud.fud_item(fud_item_name);
 CREATE INDEX idx_fud_item_brand_id ON fud.fud_item(brand_id);
-CREATE INDEX idx_fud_item_supplier_id ON fud.fud_item(supplier_id);
+
+DROP TABLE IF EXISTS fud.fud_item_supplier CASCADE;
+CREATE TABLE fud.fud_item_supplier (
+    fud_item_id INT NOT NULL,
+    supplier_id INT NOT NULL,
+    UNIQUE (fud_item_id, supplier_id),
+    CONSTRAINT fk_fud_item_supplier_item FOREIGN KEY(fud_item_id) REFERENCES fud.fud_item(fud_item_id) ON DELETE CASCADE,
+    CONSTRAINT fk_fud_item_supplier_supplier FOREIGN KEY(supplier_id) REFERENCES fud.supplier(supplier_id) ON DELETE CASCADE
+);
+ALTER TABLE fud.fud_item_supplier OWNER TO fud;
+CREATE INDEX idx_fud_item_supplier_item ON fud.fud_item_supplier(fud_item_id);
+CREATE INDEX idx_fud_item_supplier_supplier ON fud.fud_item_supplier(supplier_id);
 
 DROP TABLE IF EXISTS fud.fud_item_category CASCADE;
 CREATE TABLE fud.fud_item_category (
     fud_item_id INT NOT NULL,
     fud_category_id INT NOT NULL,
+    UNIQUE(fud_item_id, fud_category_id),
     CONSTRAINT fk_fud_item FOREIGN KEY(fud_item_id) REFERENCES fud.fud_item(fud_item_id) ON DELETE CASCADE,
     CONSTRAINT fk_category FOREIGN KEY(fud_category_id) REFERENCES fud.fud_category(fud_category_id) ON DELETE CASCADE
 );

@@ -41,7 +41,7 @@
           :opt-un [::notes]))
 
 (s/def ::fud_item
-  (s/keys :req-un [::fud_item_name ::brand_id ::supplier_id]
+  (s/keys :req-un [::fud_item_name ::brand_id]
           :opt-un [::low_stock_warning_level ::notes]))
 
 (s/def ::inventory_item
