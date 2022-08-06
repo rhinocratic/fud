@@ -5,7 +5,7 @@
    [honey.sql.helpers :as h]
    [com.brunobonacci.mulog :as u]))
 
-(defn- primary-key
+(defn primary-key
   "Derive the primary key from the table name"
   [table]
   (-> table
@@ -22,44 +22,44 @@
    :inventory_item [:inventory_item_id :fud_item_id :expiry_day :expiry_month :expiry_year :date_expiry :date_added :date_used]})
 
 (defn- select-all-sql 
-  [table cols]
-  (-> (apply h/select cols)
+  [table]
+  (-> (apply h/select (display-columns table))
       (h/from table)
-      sql/format))
+      sql/format {:pretty true}))
 
-(defn- select-all-rows
+(defn select-all
   "Select all rows from a table"
-  [db table cols]
+  [db table]
   (try
-    (jdbc/execute! db (select-all-sql table cols))
+    (jdbc/execute! db (select-all-sql table))
     (catch Exception e 
       (u/log ::select-all-rows-error :message (ex-message e))
-      (throw (ex-info "Error whilst selecting rows" {:table table :cols cols})))))
+      (throw (ex-info "Error whilst selecting all rows" {:table table})))))
 
 (defn- select-by-id-sql 
-  [table id cols]
-  (-> (apply h/select cols)
+  [table id]
+  (-> (apply h/select (display-columns table))
       (h/from table)
       (h/where [:= (primary-key table) id])
-      sql/format))
+      sql/format {:pretty true}))
 
-(defn- select-row-by-id 
+(defn select-one
   "Select the row with the given ID from a table"
-  [db table id cols]
+  [db table id]
   (try
-    (jdbc/execute-one! db (select-by-id-sql table id cols))
+    (jdbc/execute-one! db (select-by-id-sql table id))
     (catch Exception e
       (u/log ::select-row-by-id-error :message (ex-message e))
-      (throw (ex-info "Eror whilst selecting row" {:table table :cols cols :id id})))))
+      (throw (ex-info "Eror whilst selecting row" {:table table :id id})))))
 
 (defn- insert-row-sql
   [table row]
   (-> (h/insert-into table)
       (h/values [row])
-      (h/returning (primary-key table))
+      (h/returning (display-columns table))
       (sql/format {:pretty true})))
 
-(defn- insert-row 
+(defn insert 
   "Insert a new row into a table"
   [db table row]
   (try
@@ -69,48 +69,57 @@
       (throw (ex-info "Error whilst inserting row" {:table table :row row})))))
 
 (defn- delete-row-sql
-  "Delete a row from a table"
   [table id]
   (-> (h/delete-from table)
       (h/where [:= (primary-key table) id])
       (h/returning (display-columns table))
       (sql/format {:pretty true})))
 
-(defn- delete-row 
+(defn delete
   "Delete a row from a table"
   [db table id]
   (try 
     (jdbc/execute-one! db (delete-row-sql table id))
     (catch Exception e 
       (u/log ::delete-row-error :message (ex-message e))
-      (throw (ex-info "Error whilst deleting row" {})))))
+      (throw (ex-info "Error whilst deleting row" {:table table :id id})))))
 
-(defn select-all 
-  "Select all items from a table"
-  [db table]
-  (select-all-rows db table (display-columns table)))
+(defn- update-row-sql
+  [table id row]
+  (-> (h/update table)
+      (h/values row)
+      (h/where [:= (primary-key table) id])
+      (h/returning (display-columns table))
+      (sql/format {:pretty true})))
 
-(defn select-by-id
-  "Select an item from a table by primary key"
-  [db table id]
-  (select-row-by-id db table id (display-columns table)))
+(defn- update-row
+  [db table id row]
+  (try 
+    (jdbc/execute-one! db (update-row-sql table id row))
+    (catch Exception e 
+      (u/log ::update-row-error :message (ex-message e))
+      (throw (ex-info "Error whilst updating row" {:table table :id id :row row})))))
 
-(defn delete-by-id
-  "Delete a row by ID"
-  [db table id]
-  (delete-row db table id))
-
-(defmulti ^:private augment-new-row
-  "Do any required processing of a new row before committing it to the DB"
+(defmulti ^:private augment-row
+  "Do any required processing of a new or updated row before committing it to the DB"
   (fn [table _row] table))
 
-(defmethod augment-new-row :inventory_item
+(defmethod augment-row :inventory_item
   [_table row]
   (assoc row
          :date-added (java.time.LocalDateTime/now)
          :expiry_date (java.time.LocalDateTime/now)))
 
-(defn create-new
+(defmethod augment-row :default
+  [_table row]
+  row)
+
+(defn create
   "Create a new row"
   [db table row]
-  (insert-row db table (augment-new-row table row)))
+  (insert db table (augment-row table row)))
+
+(defn edit 
+  "Update a row"
+  [db table id row]
+  (update-row db table id (augment-row table row)))
