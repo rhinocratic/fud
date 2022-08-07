@@ -24,8 +24,12 @@
 (s/def ::supplier_name ::name)
 (s/def ::fud_category_id ::id)
 (s/def ::fud_category_name ::name)
+(s/def ::fud_type_name ::name)
+(s/def ::low_stock_qty nat-int?)
+(s/def ::low_stock_unit_id ::id)
 (s/def ::fud_item_id ::id)
 (s/def ::fud_item_name ::name)
+(s/def ::unit_qty pos-int?)
 (s/def ::inventory_item_id ::id)
 
 (s/def ::brand
@@ -40,9 +44,13 @@
   (s/keys :req-un [::fud_category_name]
           :opt-un [::notes]))
 
+(s/def ::fud_type
+  (s/keys :req-un [::fud_type_name]
+          :opt-un [::low_stock_qty ::low_stock_unit_id ::notes]))
+
 (s/def ::fud_item
-  (s/keys :req-un [::fud_item_name ::brand_id]
-          :opt-un [::low_stock_warning_level ::notes]))
+  (s/keys :req-un [::fud_item_name ::brand_id ::unit_qty ::unit]
+          :opt-un [::notes]))
 
 (s/def ::inventory_item
   (s/keys :req-un [::fud_item_id ::expiry_month ::expiry_year]

@@ -24,7 +24,8 @@
   {:brand [:brand_id :brand_name :notes]
    :supplier [:supplier_id :supplier_name :website :email :telephone :address :notes]
    :fud_category [:fud_category_id :fud_category_name :notes]
-   :fud_item [:fud_item_id :fud_item_name :low_stock_warning_level :notes :brand_id :supplier_id]
+   :fud_type [:fud_type_id :fud_type_name :low_stock_qty :low_stock_unit_id :notes]
+   :fud_item [:fud_item_id :fud_type_id :brand_id :unit_qty :unit :notes]
    :inventory_item [:inventory_item_id :fud_item_id :expiry_day :expiry_month :expiry_year :date_expiry :date_added :date_used]})
 
 (defn- select-all-sql 

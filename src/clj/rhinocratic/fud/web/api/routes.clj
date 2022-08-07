@@ -35,11 +35,13 @@
   [["/brands" (all-rows-handlers db :brand "brand" "brands")]
    ["/suppliers" (all-rows-handlers db :supplier "supplier" "suppliers")]
    ["/fud-categories" (all-rows-handlers db :fud_category "fud category" "fud categories")]
+   ["/fud-types" (all-rows-handlers db :fud_type "fud type" "fud types")]
    ["/fud-items" (all-rows-handlers db :fud_item "fud item" "fud items")] 
    ["/inventory-items" (all-rows-handlers db :inventory_item "inventory item" "inventory items")]
    ["/brands/:id" (single-row-handlers db :brand "a brand")]
    ["/suppliers/:id" (single-row-handlers db :supplier "a supplier")] 
    ["/fud-categories/:id" (single-row-handlers db :fud_category "a fud category")] 
+   ["/fud-types/:id" (single-row-handlers db :fud_type "a fud type")]
    ["/fud-items/:id" (single-row-handlers db :fud_item "a fud item")] 
    ["/inventory-items/:id" (single-row-handlers db :inventory_item "an inventory item")]])
 
