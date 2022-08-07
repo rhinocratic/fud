@@ -80,17 +80,18 @@
     curr-item - a ratom containing the number of the currently selected link.  If not supplied, uses an internal ratom to maintain state -
                 this setting just allows paginators at the top & bottom of the page to share state.
     on-change - a function that accepts an integer (the selected page number) and performs some action to update the paginated content"
-  [items {:keys [num-links min-item curr-item on-change]}]
+  [{:keys [num-links min-item curr-item on-change] :as opts} items]
   (let [num-items (count items)
-        curr-item (or curr-item (r/atom min-item))]
+        curr-item (or curr-item (r/atom min-item))
+        opts' (remove #{:num-links :min-item :curr-item :on-change} opts)]
     (add-watch curr-item :page-watcher  (fn [_ _ old-val new-val] (when-not (= old-val new-val)
                                                                     (on-change new-val))))
     (fn [items]
       (cond
         (zero? num-items) [:div.title.is-5.has-text-centered  "No results found"]
         ;; (= 1 num-items) [:div.title.is-5.has-text-centered "1 result found"]
-        :else  [:div.columns
-                [:div.column.is-half.is-offset-one-quarter
+        :else  [:div.columns opts
+                [:div.column
                  [:nav.pagination.is-centered {:role "navigation" :aria-label "pagination"}
                   [pagination-prev min-item curr-item]
                   [pagination-next (+ min-item (dec num-items)) curr-item]

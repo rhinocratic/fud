@@ -6,10 +6,6 @@
 (defn wrap
   [component]
   [:div.top
-   [:section.hero
-    [:div.hero-body
-     [:p.title "Fud"]]]
-   #_[nav/navbar]
    [:section
     [:div.container.is-max-widescreen
      [:div component]]]])

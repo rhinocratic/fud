@@ -7,39 +7,26 @@
 @import url('https://fonts.googleapis.com/css?family=Nunito:400,700');
 
 // Set your brand colors
-$purple: #8A4D76;
-$pink: #FA7C91;
-$brown: #757763;
-$beige-light: #D0D1CD;
-$beige-lighter: #EFF0EB;
+// $purple: #8A4D76;
+// $pink: #FA7C91;
+// $brown: #757763;
+// $beige-light: #D0D1CD;
+// $beige-lighter: #EFF0EB;
 
 // Update Bulma's global variables
-$family-sans-serif: "Nunito", sans-serif;
-$grey-dark: $brown;
-$grey-light: $beige-light;
-$primary: $purple;
-$link: $brown;
-$widescreen-enabled: false;
-$fullhd-enabled: false;
+// $family-sans-serif: "Nunito", sans-serif;
+// $grey-dark: $brown;
+// $grey-light: $beige-light;
+// $primary: $purple;
+// $link: $brown;
+// $widescreen-enabled: false;
+// $fullhd-enabled: false;
 
 // Update some of Bulma's component variables
 $body-background-color: Snow;
-$control-border-width: 2px;
-$input-border-color: transparent;
-$input-shadow: none;
+// $control-border-width: 2px;
+// $input-border-color: transparent;
+// $input-shadow: none;
 
 // Import only what you need from Bulma
 @import "bulma.sass";
-
-.hero {
-    background-image: url(../img/background.png);
-    background-size: 100%;
-    aspect-ratio: 521 / 112;
-}
-
-.hero p.title {
-    font-family: gartonmedium, cursive;
-    font-size: 36pt;
-    text-align: center;
-    color: #777;
-}
