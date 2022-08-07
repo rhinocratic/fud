@@ -5,10 +5,10 @@
 (defn table 
   [opts headers rows]
   [:table.table opts
-   [:thead
+   [:thead.has-background-info-light
     [:tr
      (for [header headers]
-       [:td 
+       [:td
         [:strong header]])]]
    [:tbody 
    (for [row rows]
@@ -21,7 +21,7 @@
 
 (defn inventory 
   []
-  [:div.m-5
+  [:div.m-5.box
    [table {:class ["is-fullwidth" "is-striped" "is-hoverable"]}
     ["Item" "Qty" "Expiry Date" ""]
     [["Cream crackers" "2" "19/11/64" [edit-icons]]
