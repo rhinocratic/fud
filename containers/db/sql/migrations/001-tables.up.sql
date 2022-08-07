@@ -40,19 +40,35 @@ CREATE TABLE fud.fud_category (
 );
 ALTER TABLE fud.fud_category OWNER TO fud;
 
+DROP TYPE IF EXISTS qty_unit CASCADE;
+CREATE TYPE qty_unit AS ENUM ('g', 'kg', 'ml', 'cl', 'l', 'unit');
+
+DROP TABLE IF EXISTS fud.fud_type CASCADE;
+CREATE TABLE fud.fud_type (
+    fud_type_id INT GENERATED ALWAYS AS IDENTITY,
+    fud_type_name TEXT NOT NULL,
+    low_stock_qty INT NULL,
+    low_stock_unit qty_unit NULL,
+    notes TEXT,
+    PRIMARY KEY (fud_type_id)
+);
+ALTER TABLE fud.fud_type OWNER TO fud;
+
 DROP TABLE IF EXISTS fud.fud_item CASCADE;
 CREATE TABLE fud.fud_item (
     fud_item_id INT GENERATED ALWAYS AS IDENTITY,
-    fud_item_name TEXT NOT NULL,
-    low_stock_warning_level INT NULL,
-    notes TEXT,
+    fud_type_id INT NOT NULL,
     brand_id INT NOT NULL,
+    unit_qty INT NOT NULL,
+    unit qty_unit NOT NULL, 
+    notes TEXT,
     PRIMARY KEY(fud_item_id),
-    UNIQUE(fud_item_name, brand_id),
+    UNIQUE(fud_type_id, brand_id),
+    CONSTRAINT fk_fud_item_fud_type FOREIGN KEY(fud_type_id) REFERENCES fud.fud_type(fud_type_id) ON DELETE CASCADE,
     CONSTRAINT fk_brand FOREIGN KEY(brand_id) REFERENCES fud.brand(brand_id) ON DELETE CASCADE
 );
 ALTER TABLE fud.fud_item OWNER TO fud;
-CREATE INDEX idx_fud_item_name ON fud.fud_item(fud_item_name);
+CREATE INDEX idx_fud_item_type ON fud.fud_item(fud_type_id);
 CREATE INDEX idx_fud_item_brand_id ON fud.fud_item(brand_id);
 
 DROP TABLE IF EXISTS fud.fud_item_supplier CASCADE;
