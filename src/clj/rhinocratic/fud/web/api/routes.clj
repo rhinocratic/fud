@@ -1,8 +1,7 @@
 (ns rhinocratic.fud.web.api.routes
   (:require
    [clojure.spec.alpha :as s]
-   [rhinocratic.fud.web.api.handlers :as h]
-   [rhinocratic.fud.web.api.spec :as api-spec]))
+   [rhinocratic.fud.web.api.handlers :as h]))
 
 (s/def ::role #{:admin})
 
@@ -15,8 +14,13 @@
   {:get {:handler (partial #'h/fetch-all db table)
          :summary (format "List all %s" plural)}
    :post {:handler (partial #'h/create db table (table-spec table))
-          :parameters {:body {table (table-spec table)}
-          :summary (format "Create a new %s" singular)}}})
+          :parameters {:body {table (table-spec table)}}
+          :summary (format "Create a new %s" singular)}})
+
+(defn readonly-all-rows-handler
+  [db table plural]
+  {:get {:handler (partial #'h/fetch-all db table)
+         :summary (format "List all %s" plural)}})
 
 (defn single-row-handlers 
   [db table description]
@@ -38,12 +42,14 @@
    ["/fud-types" (all-rows-handlers db :fud_type "fud type" "fud types")]
    ["/fud-items" (all-rows-handlers db :fud_item "fud item" "fud items")] 
    ["/inventory-items" (all-rows-handlers db :inventory_item "inventory item" "inventory items")]
+   ["/units" (readonly-all-rows-handler db :unit "unit")]
    ["/brands/:id" (single-row-handlers db :brand "a brand")]
    ["/suppliers/:id" (single-row-handlers db :supplier "a supplier")] 
    ["/fud-categories/:id" (single-row-handlers db :fud_category "a fud category")] 
-   ["/fud-types/:id" (single-row-handlers db :fud_type "a fud type")]
+   ["/fud-types/:id" (single-row-handlers db :fud_type "a fud type")] 
    ["/fud-items/:id" (single-row-handlers db :fud_item "a fud item")] 
-   ["/inventory-items/:id" (single-row-handlers db :inventory_item "an inventory item")]])
+   ["/inventory-items/:id" (single-row-handlers db :inventory_item "an inventory item")]
+   ])
 
 (comment 
   

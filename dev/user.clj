@@ -30,6 +30,14 @@
   [] (ig-repl/halt))
 
 #_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
+(defn restart 
+  "Restart all services"
+  ([] (restart :dev))
+  ([profile]
+   (halt)
+   (go profile)))
+
+#_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
 (defn system
   "The initialised integrant system configuration"
   [] ig-state/system)
