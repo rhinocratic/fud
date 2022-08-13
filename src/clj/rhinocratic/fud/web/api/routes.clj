@@ -62,9 +62,3 @@
 
    ["/fud-items/:id/suppliers" (food-item-suppliers-handler db)]
    ])
-
-(comment 
-  
-     ;; {:spec (s/merge (s/keys :req [::roles]) ::rs/default-data)}
-
-  )

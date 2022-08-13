@@ -6,8 +6,7 @@
    [java.net URL]
    [com.google.i18n.phonenumbers
     PhoneNumberUtil
-    PhoneNumberUtil$PhoneNumberFormat
-    NumberParseException]))
+    PhoneNumberUtil$PhoneNumberFormat]))
 
 (def phone-utils 
   "Telephone number parsing and formatting utilities"
