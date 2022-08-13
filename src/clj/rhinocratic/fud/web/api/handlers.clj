@@ -20,8 +20,8 @@
 (defn fetch-all
   "Fetch all rows from the DB"
   [db table _req]
-  (let [item (q/select-all db table)]
-    (with-status item)))
+  (let [items (q/select-all db table)]
+    (with-status items)))
 
 (defn fetch-one 
   "Fetch a single item from the DB"
@@ -66,3 +66,17 @@
         id (get-in req [:parameters :path :id])
         item (q/edit db table id row)]
     (with-status item)))
+
+(defn fetch-suppliers-for-fud-item 
+  [db req]
+  (let [fud-item-id (get-in req [:parameters :path :fud_item_id])
+        items (q/fetch-suppliers-for-fud-item db fud-item-id)]
+    (with-status items)))
+
+(defn add-supplier-for-fud-item
+  [db req]
+  (let [fud-item-id (get-in req [:parameters :path :id])
+        supplier-id (get-in req [:parameters :body :supplier_id])
+        item-supplier (q/add-supplier-for-fud-item db fud-item-id supplier-id)]
+    (-> item-supplier
+        (with-status 200))))

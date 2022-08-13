@@ -1,5 +1,5 @@
 (ns rhinocratic.fud.db.queries
-  (:require 
+  (:require
    [clojure.string :as str]
    [next.jdbc :as jdbc]
    [honey.sql :as sql]
@@ -25,10 +25,11 @@
    :supplier [:supplier_id :supplier_name :website :email :telephone :address :notes]
    :fud_category [:fud_category_id :fud_category_name :notes]
    :fud_type [:fud_type_id :fud_type_name :low_stock_qty :low_stock_unit_id :notes]
-   :fud_item [:fud_item_id :fud_type_id :brand_id :unit_qty :unit :notes]
-   :inventory_item [:inventory_item_id :fud_item_id :expiry_day :expiry_month :expiry_year :date_expiry :date_added :date_used]})
+   :fud_item [:fud_item_id :fud_type_id :brand_id :unit_qty :unit_id :notes]
+   :inventory_item [:inventory_item_id :fud_item_id :expiry_day :expiry_month :expiry_year :date_expiry :date_added :date_used]
+   :unit [:unit_id :unit_name]})
 
-(defn- select-all-sql 
+(defn- select-all-sql
   [table]
   (-> (apply h/select (display-columns table))
       (h/from table)
@@ -39,11 +40,11 @@
   [db table]
   (try
     (jdbc/execute! db (select-all-sql table))
-    (catch Exception e 
+    (catch Exception e
       (u/log ::select-all-rows-error :message (ex-message e) :table table)
       {:error {:status 500}})))
 
-(defn- select-by-id-sql 
+(defn- select-by-id-sql
   [table id]
   (-> (apply h/select (display-columns table))
       (h/from table)
@@ -66,12 +67,12 @@
       (returning (display-columns table))
       (sql/format {:pretty true})))
 
-(defn insert 
+(defn insert
   "Insert a new row into a table"
   [db table row]
   (try
     (jdbc/execute-one! db (insert-row-sql table row))
-    (catch Exception e 
+    (catch Exception e
       (u/log ::insert-row-error :message (ex-message e) :table table :row row)
       (if (str/includes? (ex-message e) "duplicate")
         {:error {:status 409}}
@@ -87,9 +88,9 @@
 (defn delete
   "Delete a row from a table"
   [db table id]
-  (try 
+  (try
     (jdbc/execute-one! db (delete-row-sql table id))
-    (catch Exception e 
+    (catch Exception e
       (u/log ::delete-row-error :message (ex-message e) :table table :id id)
       {:error {:status 500}})))
 
@@ -103,9 +104,9 @@
 
 (defn- update-row
   [db table id row]
-  (try 
+  (try
     (jdbc/execute-one! db (update-row-sql table id row))
-    (catch Exception e 
+    (catch Exception e
       (u/log ::update-row-error :message (ex-message e) :table table :id id :row row)
       (if (str/includes? (ex-message e) "duplicate")
         {:error {:status 409}}
@@ -130,7 +131,43 @@
   [db table row]
   (insert db table (augment-row table row)))
 
-(defn edit 
+(defn edit
   "Update a row"
   [db table id row]
   (update-row db table id (augment-row table row)))
+
+(defn- fetch-suppliers-for-fud-item-sql
+  [id]
+  (-> (h/select :s.supplier_id :s.supplier_name :s.website :s.email :s.telephone :s.address :s.notes)
+      (h/from [:fud.fud_item :i] [:fud.supplier :s] [:fud.fud_item_supplier :fs]) 
+      (h/where :and [:= :i.fud_item_id :fs.fud_item_id] [:= :s.supplier_id :fs.supplier_id])
+      (sql/format {:pretty true})))
+
+(defn fetch-suppliers-for-fud-item
+  [db fud-item-id]
+  (try
+    (jdbc/execute! db (fetch-suppliers-for-fud-item-sql fud-item-id))
+    (catch Exception e
+      (u/log ::fetch-suppliers-for-fud-item :message (ex-message e) :fud-item-id fud-item-id)
+      {:error {:status 500}})))
+
+(defn- add-supplier-for-fud-item-sql
+  [fud-item-id supplier-id]
+  (-> (h/insert-into :fud.fud_item_supplier)
+      (h/values [{:fud_item_id fud-item-id :supplier_id supplier-id}])
+      (h/returning :fud_item_id :supplier_id)
+      (sql/format {:pretty true})))
+
+(defn add-supplier-for-fud-item 
+  [db fud-item-id supplier-id]
+  (try
+    (jdbc/execute-one! db (add-supplier-for-fud-item-sql fud-item-id supplier-id))
+    (catch Exception e
+      (u/log ::add-supplier-for-fud-item :message (ex-message e) :fud-item-id fud-item-id :supplier-id supplier-id)
+      {:error {:status 500}})))
+
+(comment 
+  
+  (add-supplier-for-fud-item-sql 2 9)
+  
+  )

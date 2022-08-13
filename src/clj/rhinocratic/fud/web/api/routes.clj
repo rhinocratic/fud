@@ -9,7 +9,7 @@
   [table]
   (keyword "rhinocratic.fud.web.api.spec" (name table)))
 
-(defn all-rows-handlers
+(defn list-handlers
   [db table singular plural]
   {:get {:handler (partial #'h/fetch-all db table)
          :summary (format "List all %s" plural)}
@@ -17,12 +17,12 @@
           :parameters {:body {table (table-spec table)}}
           :summary (format "Create a new %s" singular)}})
 
-(defn readonly-all-rows-handler
+(defn readonly-list-handler
   [db table plural]
   {:get {:handler (partial #'h/fetch-all db table)
          :summary (format "List all %s" plural)}})
 
-(defn single-row-handlers 
+(defn get-put-delete-handlers 
   [db table description]
   {:name       (keyword (str *ns*) (name table))
    :parameters {:path {:id int?}}
@@ -34,21 +34,33 @@
    :delete     {:handler (partial #'h/delete db table)
                 :summary (format "Delete %s by ID" description)}})
 
+(defn food-item-suppliers-handler
+  [db]
+  {:parameters {:path {:id int?}}
+   :get {:handler (partial #'h/fetch-suppliers-for-fud-item db)
+         :summary "Fetch all suppliers of a given fud item"}
+   :post {:handler (partial #'h/add-supplier-for-fud-item db)
+          :parameters {:body {:supplier_id int?}}
+          :summary "Add an existing supplier to the list of suppliers of a given fud item"}})
+
 (defn routes
   [db]
-  [["/brands" (all-rows-handlers db :brand "brand" "brands")]
-   ["/suppliers" (all-rows-handlers db :supplier "supplier" "suppliers")]
-   ["/fud-categories" (all-rows-handlers db :fud_category "fud category" "fud categories")]
-   ["/fud-types" (all-rows-handlers db :fud_type "fud type" "fud types")]
-   ["/fud-items" (all-rows-handlers db :fud_item "fud item" "fud items")] 
-   ["/inventory-items" (all-rows-handlers db :inventory_item "inventory item" "inventory items")]
-   ["/units" (readonly-all-rows-handler db :unit "unit")]
-   ["/brands/:id" (single-row-handlers db :brand "a brand")]
-   ["/suppliers/:id" (single-row-handlers db :supplier "a supplier")] 
-   ["/fud-categories/:id" (single-row-handlers db :fud_category "a fud category")] 
-   ["/fud-types/:id" (single-row-handlers db :fud_type "a fud type")] 
-   ["/fud-items/:id" (single-row-handlers db :fud_item "a fud item")] 
-   ["/inventory-items/:id" (single-row-handlers db :inventory_item "an inventory item")]
+  [["/brands" (list-handlers db :brand "brand" "brands")]
+   ["/suppliers" (list-handlers db :supplier "supplier" "suppliers")]
+   ["/fud-categories" (list-handlers db :fud_category "fud category" "fud categories")]
+   ["/fud-types" (list-handlers db :fud_type "fud type" "fud types")]
+   ["/fud-items" (list-handlers db :fud_item "fud item" "fud items")] 
+   ["/inventory-items" (list-handlers db :inventory_item "inventory item" "inventory items")]
+   ["/units" (readonly-list-handler db :unit "units")]
+
+   ["/brands/:id" (get-put-delete-handlers db :brand "a brand")]
+   ["/suppliers/:id" (get-put-delete-handlers db :supplier "a supplier")] 
+   ["/fud-categories/:id" (get-put-delete-handlers db :fud_category "a fud category")] 
+   ["/fud-types/:id" (get-put-delete-handlers db :fud_type "a fud type")] 
+   ["/fud-items/:id" (get-put-delete-handlers db :fud_item "a fud item")] 
+   ["/inventory-items/:id" (get-put-delete-handlers db :inventory_item "an inventory item")]
+
+   ["/fud-items/:id/suppliers" (food-item-suppliers-handler db)]
    ])
 
 (comment 
