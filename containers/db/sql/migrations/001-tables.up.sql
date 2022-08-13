@@ -48,6 +48,9 @@ CREATE TABLE fud.unit (
     UNIQUE(unit_name)
 );
 ALTER TABLE fud.unit OWNER TO fud;
+INSERT INTO fud.unit(unit_name)
+VALUES ('g'), ('kg'), ('ml'), ('cl'), ('l'), ('unit');
+
 
 DROP TABLE IF EXISTS fud.fud_type CASCADE;
 CREATE TABLE fud.fud_type (
@@ -70,7 +73,7 @@ CREATE TABLE fud.fud_item (
     fud_type_id INT NOT NULL,
     brand_id INT NOT NULL,
     unit_qty INT NOT NULL,
-    unit_id  INT NOT NULL, 
+    unit_id  INT NOT NULL,
     notes TEXT,
     PRIMARY KEY(fud_item_id),
     UNIQUE(fud_type_id, brand_id),
