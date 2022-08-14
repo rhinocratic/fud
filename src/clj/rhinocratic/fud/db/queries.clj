@@ -136,19 +136,19 @@
   [db table id row]
   (update-row db table id (augment-row table row)))
 
-(defn- fetch-suppliers-for-fud-item-sql
-  [id]
+(defn- fetch-all-suppliers-for-fud-item-sql
+  [fud-item-id]
   (-> (h/select :s.supplier_id :s.supplier_name :s.website :s.email :s.telephone :s.address :s.notes)
       (h/from [:fud.fud_item :i] [:fud.supplier :s] [:fud.fud_item_supplier :fs]) 
-      (h/where :and [:= :i.fud_item_id :fs.fud_item_id] [:= :s.supplier_id :fs.supplier_id])
+      (h/where :and [:= :i.fud_item_id fud-item-id] [:= :i.fud_item_id :fs.fud_item_id] [:= :s.supplier_id :fs.supplier_id])
       (sql/format {:pretty true})))
 
-(defn fetch-suppliers-for-fud-item
+(defn fetch-all-suppliers-for-fud-item
   [db fud-item-id]
   (try
-    (jdbc/execute! db (fetch-suppliers-for-fud-item-sql fud-item-id))
+    (jdbc/execute! db (fetch-all-suppliers-for-fud-item-sql fud-item-id))
     (catch Exception e
-      (u/log ::fetch-suppliers-for-fud-item :message (ex-message e) :fud-item-id fud-item-id)
+      (u/log ::fetch-all-suppliers-for-fud-item :message (ex-message e) :fud-item-id fud-item-id)
       {:error {:status 500}})))
 
 (defn- add-supplier-for-fud-item-sql
@@ -166,8 +166,64 @@
       (u/log ::add-supplier-for-fud-item :message (ex-message e) :fud-item-id fud-item-id :supplier-id supplier-id)
       {:error {:status 500}})))
 
+(defn- delete-supplier-for-fud-item-sql
+  [fud-item-id supplier-id]
+  (-> (h/delete-from :fud.fud_item_supplier)
+      (h/where :and [:= :fud_item_id fud-item-id] [:= :supplier_id supplier-id])
+      (sql/format {:pretty true})))
+
+(defn delete-supplier-for-fud-item
+  [db fud-item-id supplier-id]
+  (try
+    (jdbc/execute-one! db (delete-supplier-for-fud-item-sql fud-item-id supplier-id))
+    (catch Exception e
+      (u/log ::delete-supplier-for-fud-item :message (ex-message e) :fud-item-id fud-item-id :supplier-id supplier-id)
+      {:error {:status 500}})))
+
+;; (defn- fetch-all-fud-item-categories-sql 
+;;   [fud-item-id]
+;;   (-> (h/select :fc.fud_category_id :fc.fud_category_name :fc.notes)
+;;       (h/from [:fud.fud_item_category :fic] [:fud.fud_category :fc])
+;;       (h/where :and [:= :fic.fud_item_id fud-item-id] [:= :fic.fud_category_id :fc.fud_category_id])
+;;       (sql/format {:pretty true})))
+
+;; (defn fetch-all-fud-item-categories 
+;;   [db fud-item-id]
+;;   (try 
+;;     (jdbc/execute! db (fetch-all-fud-item-categories-sql fud-item-id))
+;;     (catch Exception e
+;;       (u/log ::fetch-all-fud-item-categories :message (ex-message e) :fud-item-id fud-item-id)
+;;       {:error {:status 500}})))
+
+;; (defn- fetch-all-fud-items-for-categories-sql 
+;;   [fud-category-ids]
+;;   (-> (h/select :fi.fud_item_id :fi.fud_type_id :fi.brand_id :fi.unit_qty :fi.unit_id :fi.notes)
+;;       (h/from [:fud.fud_item_category :fic] [:fud.fud_item :fi]) 
+;;       (h/where :and [:fic.fud_category_id :in fud-category-ids] [:= :fic.fud_item_id :fi.fud_item_id])
+;;       (sql/format {:pretty true})))
+
+;; (defn fetch-all-fud-categories-for-items 
+;;   [db fud-category-ids]
+;;   (try 
+;;     (jdbc/execute! db (fetch-all-fud-items-for-categories-sql fud-category-ids))
+;;     (catch Exception e
+;;       (u/log ::fetch-all-fud-item-categories :message (ex-message e) :fud-category-ids fud-category-ids)
+;;       {:error {:status 500}})))
+
+;; (defn- add-fud-items-to-category-sql
+;;   [])
+
+;; (defn add-fud-items-to-category 
+;;   [fud-category-id fud-item-ids]
+;;   (try
+;;     (jdbc/execute-one!db (add-fud-items-to-category-sql))
+;;     (catch Exception e
+;;       (u/log ::add-fud-items-to-category :message (ex-message e) :fud-category-id fud-category-id :fud-item-ids fud-item-ids)
+;;       {:error {:status 500}})))
+
 (comment 
   
-  (add-supplier-for-fud-item-sql 2 9)
-  
-  )
+  (fetch-all-fud-item-categories-sql  9)
+
+
+)

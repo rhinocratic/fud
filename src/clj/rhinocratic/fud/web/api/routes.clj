@@ -7,7 +7,7 @@
 
 (defn table-spec 
   [table]
-  (keyword "rhinocratic.fud.web.api.spec" (name table)))
+  (keyword "rhinocratic.fud.web.api.validation" (name table)))
 
 (defn list-handlers
   [db table singular plural]
@@ -34,14 +34,41 @@
    :delete     {:handler (partial #'h/delete db table)
                 :summary (format "Delete %s by ID" description)}})
 
-(defn food-item-suppliers-handler
+(defn all-fud-item-suppliers-handler 
   [db]
-  {:parameters {:path {:id int?}}
-   :get {:handler (partial #'h/fetch-suppliers-for-fud-item db)
-         :summary "Fetch all suppliers of a given fud item"}
+  {:parameters {:path {:fud-item-id int?}}
+   :get {:handler (partial #'h/fetch-all-suppliers-for-fud-item db)
+         :summary "Fetch all suppliers of the fud item"}
    :post {:handler (partial #'h/add-supplier-for-fud-item db)
-          :parameters {:body {:supplier_id int?}}
-          :summary "Add an existing supplier to the list of suppliers of a given fud item"}})
+          :parameters {:body {:supplier-id int?}}
+          :summary "Add an existing supplier to the list of suppliers of the fud item"}})
+
+(defn fud-item-supplier-handler
+  [db]
+  {:delete {:handler (partial #'h/delete-supplier-for-fud-item db)
+            :parameters {:path {:fud-item-id int? :supplier-id int?}}
+            :summary "Remove a supplier of the fud item"}})
+
+;; (defn all-fud-item-categories-handler
+;;   [db]
+;;   {:parameters {:path {:fud-item-id int?}}
+;;    :get {:handler (partial #'h/fetch-all-fud-item-categories db)
+;;          :summary "Fetch all categories for the fud item"}
+;;    :post {:handler (partial #'h/add-fud-item-to-category db)
+;;           :parameters {:body {:fud-item-id int?}}
+;;           :summary "Add a category to the fud item"}})
+
+;; (defn fud-item-category-handler 
+;;   [db]
+;;   {:delete {:handler (partial #'h/delete-fud-item-from-category db)
+;;             :parameters {:path {:fud-item-id int? :fud-category-id int?}}
+;;             :summary "Remove a category from the fud item"}})
+
+;; (defn all-fud-category-items-handler 
+;;   [db]
+;;   {:parameters {:path {:fud-category-id int?}}
+;;    :get {:handler (partial #'h/fetch-all-fud-category-items db)
+;;          :summary "Fetch all fud items belonging to the given category"}})
 
 (defn routes
   [db]
@@ -60,5 +87,12 @@
    ["/fud-items/:id" (get-put-delete-handlers db :fud_item "a fud item")] 
    ["/inventory-items/:id" (get-put-delete-handlers db :inventory_item "an inventory item")]
 
-   ["/fud-items/:id/suppliers" (food-item-suppliers-handler db)]
+   ["/fud-items/:fud-item-id/suppliers" (all-fud-item-suppliers-handler db)]
+   ["/fud-items/:fud-item-id/suppliers/:supplier-id" (fud-item-supplier-handler db)]
+
+  ;;  ["/fud-items/:fud-item-id/categories" (all-fud-item-categories-handler db)]
+  ;;  ["/fud-items/:fud-item-id/categories/:category-id" (fud-item-category-handler db)]
+
+  ;;  ["/fud-categories/:fud-category-id/fud-items" (all-fud-category-items-handler db)]
+
    ])

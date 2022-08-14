@@ -67,16 +67,48 @@
         item (q/edit db table id row)]
     (with-status item)))
 
-(defn fetch-suppliers-for-fud-item 
+(defn fetch-all-suppliers-for-fud-item 
   [db req]
-  (let [fud-item-id (get-in req [:parameters :path :fud_item_id])
-        items (q/fetch-suppliers-for-fud-item db fud-item-id)]
+  (let [fud-item-id (get-in req [:parameters :path :fud-item-id])
+        items (q/fetch-all-suppliers-for-fud-item db fud-item-id)]
     (with-status items)))
 
 (defn add-supplier-for-fud-item
   [db req]
-  (let [fud-item-id (get-in req [:parameters :path :id])
-        supplier-id (get-in req [:parameters :body :supplier_id])
+  (let [fud-item-id (get-in req [:parameters :path :fud-item-id])
+        supplier-id (get-in req [:parameters :body :supplier-id])
         item-supplier (q/add-supplier-for-fud-item db fud-item-id supplier-id)]
-    (-> item-supplier
-        (with-status 200))))
+    (with-status item-supplier)))
+
+(defn delete-supplier-for-fud-item 
+  [db req]
+  (let [fud-item-id (get-in req [:parameters :path :id])
+        supplier-id (get-in req [:parameters :path :supplier-id])
+        item-supplier (q/delete-supplier-for-fud-item db fud-item-id supplier-id)]
+    (with-status item-supplier)))
+
+;; (defn fetch-all-fud-item-categories
+;;   [db req]
+;;   (let [fud-category-id (get-in req [:parameters :path :fud-category-id])
+;;         categories (q/fetch-all-categories-for-fud-items db [fud-category-id])]
+;;     (with-status categories)))
+
+;; (defn add-fud-item-to-category 
+;;   [db req]
+;;   (let [fud-category-id (get-in req [:parameters :path :fud-category-id])
+;;         fud-item-id (get-in req [:parameters :body :fud-item-id])
+;;         item-category (q/add-fud-item-to-category db fud-category-id fud-item-id)]
+;;     (with-status item-category)))
+
+;; (defn delete-fud-item-from-category 
+;;   [db req]
+;;   (let [fud-category-id (get-in req [:parameters :path :fud-category-id])
+;;         fud-item-id (get-in req [:parameters :path :fud-item-id])
+;;         item-category (q/delete-fud-item-from-category db fud-category-id fud-item-id)]
+;;     (with-status item-category)))
+
+;; (defn fetch-all-fud-category-items 
+;;   [db req]
+;;   (let [fud-category-id (get-in req [:parameters :path :fud-category-id])
+;;         items (q/fetch-all-fud-categories-for-items db [fud-category-id])]
+;;     (with-status items)))

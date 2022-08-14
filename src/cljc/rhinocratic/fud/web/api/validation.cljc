@@ -1,27 +1,27 @@
-(ns rhinocratic.fud.web.api.spec
-  (:require 
+(ns rhinocratic.fud.web.api.validation
+  (:require
    [clojure.spec.alpha :as s]
    [clojure.string :as str])
   (:import
    [java.net URL]
    [com.google.i18n.phonenumbers
     PhoneNumberUtil
-    PhoneNumberUtil$PhoneNumberFormat]))
+    PhoneNumberUtil$PhoneNumberFormat])) ;; TODO - fix this for cljs
 
-(def phone-utils 
+(def phone-utils
   "Telephone number parsing and formatting utilities"
   (delay (PhoneNumberUtil/getInstance)))
 
-(defn conform-url 
+(defn conform-url
   [s]
-  (try 
+  (try
     (-> s (URL.) str)
-    (catch Exception _ 
+    (catch Exception _
       :clojure.spec.alpha/invalid)))
 
 (defn conform-telephone-number
   [s]
-  (try 
+  (try
     (as-> s $
       (.parse @phone-utils $ "GB")
       (.format @phone-utils $ PhoneNumberUtil$PhoneNumberFormat/INTERNATIONAL))
